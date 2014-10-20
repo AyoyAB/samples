@@ -1,4 +1,4 @@
 samples
 =======
 
-Sample Code
+This repository contains our sample code.
