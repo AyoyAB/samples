@@ -27,6 +27,34 @@ webcrypto.crypto = (function () {
             });
     }
 
+    function exportPrivateKey(keyPair) {
+        return window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
+            .then(function(key) {
+                return key;
+            });
+    }
+
+    function exportPublicKey(keyPair) {
+        return window.crypto.subtle.exportKey('spki', keyPair.publicKey)
+            .then(function(key) {
+                return key;
+            });
+    }
+
+    function exportJwkPrivateKey(keyPair) {
+        return window.crypto.subtle.exportKey('jwk', keyPair.privateKey)
+            .then(function(key) {
+                return key;
+            });
+    }
+
+    function exportJwkPublicKey(keyPair) {
+        return window.crypto.subtle.exportKey('jwk', keyPair.publicKey)
+            .then(function(key) {
+                return key;
+            });
+    }
+
     function signData(privateKey, plaintext) {
         return window.crypto.subtle.sign(privateKey.algorithm, privateKey, plaintext)
             .then(function (signature) {
@@ -43,6 +71,10 @@ webcrypto.crypto = (function () {
 
     return {
         createKeyPair: createKeyPair,
+        exportPrivateKey: exportPrivateKey,
+        exportPublicKey: exportPublicKey,
+        exportJwkPrivateKey: exportJwkPrivateKey,
+        exportJwkPublicKey: exportJwkPublicKey,
         signData: signData,
         verifySignature: verifySignature
     };

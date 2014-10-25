@@ -9,16 +9,79 @@
     </head>
     <body>
         <div class="container">
-            <div class="header">
-                <h3 class="text-muted">Web Crypto Sample App</h3>
+            <div class="page-header">
+                <h1>Web Crypto Tests</h1>
             </div>
 
-            <div class="jumbotron">
-                <h1>Web Crypto Tests</h1>
-                <p class="lead">Key generation, signing, and verification tests.</p>
-                <button type="button" class="btn btn-lg primary" id="generate">Generate Key</button>
-                <button type="button" class="btn btn-lg primary" id="sign" disabled="disabled">Test Signing</button>
-                <button type="button" class="btn btn-lg primary" id="verify" disabled="disabled">Test Verification</button>
+            <div class="row">
+                <div class="col-md-12">
+                    <h2>Signing & Verification</h2>
+                    <p class="lead">Key generation, signing, and verification tests.</p>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Step 1: Generate a Key Pair</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form role="form">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary" id="generateButton">Generate Key Pair</button>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" for="privateKeyInput">DER Private Key</label>
+                                    <input class="form-control" type="text" placeholder="Private key" id="privateKeyInput" readonly>
+                                    <span class="help-block">The generated private key will be displayed here.</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" for="publicKeyInput">DER Public Key</label>
+                                    <input class="form-control" type="text" placeholder="Public key" id="publicKeyInput" readonly>
+                                    <span class="help-block">The generated public key will be displayed here.</span>
+                                </div>
+                                <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label" for="jwkPrivateKeyTextArea">JWK Private Key Pair</label>
+                                    <textarea class="form-control" rows="16" placeholder="JWK private key" id="jwkPrivateKeyTextArea" readonly>
+                                    </textarea>
+                                    <span class="help-block">The generated JWK private key will be displayed here.</span>
+                                </div>
+                                </div>
+                                <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label" for="jwkPublicKeyTextArea">JWK Public Key Pair</label>
+                                    <textarea class="form-control" rows="16" placeholder="JWK public key" id="jwkPublicKeyTextArea" readonly>
+                                    </textarea>
+                                    <span class="help-block">The generated JWK public key will be displayed here.</span>
+                                </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Step 2: Digitally Sign a Text</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form role="form">
+                                <div class="form-group">
+                                    <label for="plainTextInput">Text to sign</label>
+                                    <input class="form-control" type="text" placeholder="Text to sign" id="plainTextInput" value="Sample message">
+                                    <span class="help-block">Input the text to sign here.</span>
+                                </div>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary" id="signButton" disabled="disabled">Sign Message</button>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" for="signatureInput">Signature</label>
+                                    <input class="form-control" type="text" placeholder="Signature" id="signatureInput" readonly>
+                                    <span class="help-block">The generated digital signature will be displayed here.</span>
+                                </div>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary" id="verifyButton" disabled="disabled">Verify Signature</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
