@@ -1,0 +1,4 @@
+/* Scale our logo SVG to fill its parent container */
+img.full-width {
+  width: 100%;
+}
