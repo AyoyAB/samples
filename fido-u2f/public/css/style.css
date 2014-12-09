@@ -2,3 +2,8 @@
 img.full-width {
   width: 100%;
 }
+/* Scale our logo SVG till fill half its container, and center align. */
+img.half-width {
+  width: 50%;
+  margin: 0 auto;
+}

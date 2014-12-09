@@ -14,7 +14,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Set up manual routes.
 app.get('/', function(req, res) {
-    res.render('index', { title: 'FIDO U2F Demo' });
+    res.render('index');
+});
+app.get('/partials/:name', function (req, res) {
+    var name = req.params.name;
+    res.render(path.join('partials/', name));
 });
 
 // Start the server.
