@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('fidoApp', ['ngRoute']).
-    config(['$routeProvider', function($routeProvider) {
+angular.module('fidoApp', ['ngRoute'])
+    .config(['$routeProvider', function($routeProvider) {
         $routeProvider
             .when('/', {
                 templateUrl: 'partials/index'

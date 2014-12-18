@@ -1,5 +1,14 @@
-a(href="http://www.ayoy.se/")
+div(ng-controller="FidoController as ctrl")
+  a(href="http://www.ayoy.se/")
     img.img-responsive.half-width(src="img/ayoy-logo-square.svg")
-h1.text-center FIDO U2F Demo
-p.text-center A simple FIDO U2F demonstration comprising of registration, authentication and signing.
-hr
+
+  h1.text-center FIDO U2F Demo
+  p.text-center A simple FIDO U2F demonstration comprising of registration, authentication and signing.
+  hr
+
+  div.alert.alert-success(ng-show="ctrl.isFidoU2FAddOnInstalled()")
+    strong Success! #{''}
+    span FIDO U2F is installed.
+  div.alert.alert-danger(ng-hide="ctrl.isFidoU2FAddOnInstalled()")
+    strong Failure! #{''}
+    span FIDO U2F not installed.
