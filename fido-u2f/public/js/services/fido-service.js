@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('fidoApp')
+angular
+    .module('fidoApp')
     .factory('FidoService', ['$window', function($window) {
         function isFidoU2FAddOnInstalled() {
             return $window['u2f'] !== undefined;

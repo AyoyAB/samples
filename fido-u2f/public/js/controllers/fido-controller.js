@@ -1,6 +1,7 @@
 'use strict';
 
-angular.module('fidoApp')
+angular
+    .module('fidoApp')
     .controller('FidoController', ['FidoService', function(FidoService) {
         var self = this;
 
