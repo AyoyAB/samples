@@ -2,10 +2,22 @@
 
 angular
     .module('fidoApp')
-    .controller('FidoController', ['FidoService', function(FidoService) {
-        var self = this;
+    .controller('FidoController', ['CryptoService', 'FidoService', function(CryptoService, FidoService) {
+        var vm = this;
 
-        self.isFidoU2FAddOnInstalled = function() {
+        vm.isWebCryptoSupported = function() {
+            return CryptoService.isWebCryptoSupported();
+        };
+
+        vm.isFidoU2FAddOnInstalled = function() {
             return FidoService.isFidoU2FAddOnInstalled();
-        }
+        };
+
+        vm.generateChallenge = function() {
+            return CryptoService.generateChallenge();
+        };
+
+        vm.register = function(challenge, appId) {
+            return FidoService.register(challenge, appId);
+        };
     }]);

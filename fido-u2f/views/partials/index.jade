@@ -6,6 +6,12 @@ div(ng-controller="FidoController as ctrl")
   p.text-center A simple FIDO U2F demonstration comprising of registration, authentication and signing.
   hr
 
+  div.alert.alert-success(ng-show="ctrl.isWebCryptoSupported()")
+    strong Success! #{''}
+    span Web Crypto is installed.
+  div.alert.alert-danger(ng-hide="ctrl.isWebCryptoSupported()")
+    strong Failure! #{''}
+    span Web Crypto not installed.
   div.alert.alert-success(ng-show="ctrl.isFidoU2FAddOnInstalled()")
     strong Success! #{''}
     span FIDO U2F is installed.
