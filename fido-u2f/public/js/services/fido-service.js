@@ -34,10 +34,10 @@
                 }], [], function (data) {
                     if (data.errorCode) {
                         // This is an Error object, so reject the promise with it.
-                        $q.reject(data);
+                        deferred.reject(data);
                     } else {
                         // This isn't an Error object, so resolve the promise with it.
-                        $q.resolve(data);
+                        deferred.resolve(data);
                     }
                 });
 

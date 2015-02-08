@@ -6,7 +6,7 @@
      */
     angular
         .module('fidoApp')
-        .factory('CryptoService', ['$window', function($window) {
+        .factory('CryptoService', ['$window', '$q', function($window, $q) {
             /**
              * Checks if Web Crypto is supported in the current browser.
              *
@@ -42,14 +42,17 @@
              *
              * @param   {number} length The length of the challenge to generate.
              *
-             * @returns {string}        The generated encoded challenge.
+             * @returns {ng.IPromise}   A promise that is resolved with the random challenge on completion.
              */
             function generateChallenge(length) {
-                var array = new Uint32Array(length);
+                var array       = new Uint32Array(length),
+                    deferred    = $q.defer();
 
                 $window['crypto']['getRandomValues'](array);
 
-                return $window.btoa(_arrayToString(array));
+                deferred.resolve($window.btoa(_arrayToString(array)));
+
+                return deferred.promise;
             }
 
             return {
