@@ -8,10 +8,16 @@ div(ng-controller="FidoController as ctrl")
 
   div.alert.alert-success(ng-show="ctrl.isWebCryptoSupported()")
     strong Success! #{''}
-    span Web Crypto is installed.
+    span Web Crypto is supported.
   div.alert.alert-danger(ng-hide="ctrl.isWebCryptoSupported()")
     strong Failure! #{''}
-    span Web Crypto not installed.
+    span Web Crypto not supported.
+  div.alert.alert-success(ng-show="ctrl.isWebStorageSupported()")
+    strong Success! #{''}
+    span Web Storage is supported.
+  div.alert.alert-danger(ng-hide="ctrl.isWebStorageSupported()")
+    strong Failure! #{''}
+    span Web Storage not supported.
   div.alert.alert-success(ng-show="ctrl.isFidoU2FAddOnInstalled()")
     strong Success! #{''}
     span FIDO U2F is installed.
