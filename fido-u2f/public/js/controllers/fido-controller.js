@@ -16,7 +16,7 @@
                 };
 
                 vm.isFidoU2FAddOnInstalled = function() {
-                    return FidoService.isFidoU2FAddOnInstalled();
+                    return FidoService.isSupported();
                 };
 
                 vm.generateChallenge = function() {
