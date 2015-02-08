@@ -17,7 +17,16 @@
             }
 
             /**
-             * Performs a FIDO U2F V2 Registration using the supplied values.
+             * Gets the supported FIDO U2F version.
+             *
+             * @returns {string} The supported FIDO U2F version.
+             */
+            function getFidoVersion() {
+                return 'U2F_V2';
+            }
+
+            /**
+             * Performs a FIDO U2F V2 registration using the supplied values.
              *
              * @param   {string} challenge  A random registration challenge.
              * @param   {string} appId      The application identifier.
@@ -28,7 +37,7 @@
                 var deferred = $q.defer();
 
                 $window['u2f'].register([{
-                    version:    'U2F_V2',
+                    version:    getFidoVersion(),
                     challenge:  challenge,
                     appId:      appId
                 }], [], function (data) {
@@ -46,6 +55,7 @@
 
             return {
                 isSupported:    isSupported,
+                getFidoVersion: getFidoVersion,
                 register:       register
             };
         }]);
