@@ -3,25 +3,61 @@ div(ng-controller="FidoController as ctrl")
     img.img-responsive.half-width(src="img/ayoy-logo-square.svg")
 
   h1.text-center FIDO U2F Demo
-  p.text-center A simple FIDO U2F demonstration comprising of registration, authentication and signing.
+  p.text-center A simple FIDO U2F demonstration comprising of registration and authentication.
   hr
 
-  div.alert.alert-success(ng-show="ctrl.isWebCryptoSupported()")
-    strong Success! #{''}
-    span Web Crypto is supported.
   div.alert.alert-danger(ng-hide="ctrl.isWebCryptoSupported()")
     strong Failure! #{''}
     span Web Crypto not supported.
-  div.alert.alert-success(ng-show="ctrl.isWebStorageSupported()")
-    strong Success! #{''}
-    span Web Storage is supported.
   div.alert.alert-danger(ng-hide="ctrl.isWebStorageSupported()")
     strong Failure! #{''}
     span Web Storage not supported.
-  div.alert.alert-success(ng-show="ctrl.isFidoU2FSupported()")
-    strong Success! #{''}
-    span FIDO U2F add-on is installed.
   div.alert.alert-danger(ng-hide="ctrl.isFidoU2FSupported()")
     strong Failure! #{''}
     span FIDO U2F add-on not installed.&nbsp;
     a(href="https://chrome.google.com/webstore/detail/fido-u2f-universal-2nd-fa/pfboblefjcgdjicmnffhdgionmgcdmne") Download here
+  div.panel.panel-default(ng-show="ctrl.isAllSet()")
+    div.panel-heading
+      h3.panel-title FIDO U2F Registration
+    div.panel-body
+      form
+        div.form-group
+          label.control-label(for='fido_version')
+            | FIDO U2F Version
+          input(type='text', id='fido_version', data-ng-model='ctrl.registerRequest.version', aria-describedby='fido_version_help', readonly='readonly', class='form-control')
+          span#fido_version_help.help-block
+            | Version string identifying the requested version of FIDO U2F. In our case: U2F_V2.
+        div.form-group
+          label.control-label(for='fido_appId')
+            | Demo Application Identifier
+          input(type='text', id='fido_appId', data-ng-model='ctrl.registerRequest.appId', aria-describedby='fido_appId_help', readonly='readonly', class='form-control')
+          span#fido_appId_help.help-block
+            | String identifying the current FIDO Relying Party application(s).
+        div.form-group
+          label.control-label(for='fido_challenge')
+            | Randomly Generated Challenge
+          input(type='text', id='fido_challenge', data-ng-model='ctrl.registerRequest.challenge', aria-describedby='fido_challenge_help', readonly='readonly', class='form-control')
+          span#fido_challenge_help.help-block
+            | Generated randomly by the Relying Party application prior to each registration.
+        button.btn.btn-primary(data-ng-click='ctrl.register()') Register
+
+        div.alert.alert-danger(ng-show='ctrl.registrationError')
+          strong Registration Failed! #{''}
+          span Registration failed with error code {{ ctrl.registrationError.errorCode }}.
+
+        div.alert.alert-success(ng-show='ctrl.registrationResponse')
+          strong Registration Succeeded!
+
+        div.form-group
+          label.control-label(for='fido_registration_data')
+            | FIDO Registration Data
+          input(type='text', id='fido_registration_data', data-ng-model='ctrl.registrationResponse.registrationData', aria-describedby='fido_registration_data_help', placeholder='Click the Register button...', readonly='readonly', class='form-control')
+          span#fido_registration_data_help.help-block
+            | The raw registration response
+
+        div.form-group
+          label.control-label(for='fido_client_data')
+            | FIDO Client Data
+          input(type='text', id='fido_client_data', data-ng-model='ctrl.registrationResponse.clientData', aria-describedby='fido_client_data_help', placeholder='Click the Register button...', readonly='readonly', class='form-control')
+          span#fido_client_data_help.help-block
+            | The client data created by the FIDO client.
