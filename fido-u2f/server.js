@@ -3,7 +3,7 @@ var express = require('express'),
     app     = express();
 
 // Set the TCP port to list to.
-app.set('port',        process.env.PORT || 3000);
+app.set('port',        process.env['PORT'] || 3000);
 
 // Set up Jade as the view engine.
 app.set('views',       path.join(__dirname, 'views'));

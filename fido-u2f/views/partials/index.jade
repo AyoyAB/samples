@@ -23,4 +23,5 @@ div(ng-controller="FidoController as ctrl")
     span FIDO U2F is installed.
   div.alert.alert-danger(ng-hide="ctrl.isFidoU2FAddOnInstalled()")
     strong Failure! #{''}
-    span FIDO U2F not installed.
+    span FIDO U2F not installed.&nbsp;
+    a(href="https://chrome.google.com/webstore/detail/fido-u2f-universal-2nd-fa/pfboblefjcgdjicmnffhdgionmgcdmne") Download here
