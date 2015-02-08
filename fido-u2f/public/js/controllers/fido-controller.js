@@ -8,7 +8,7 @@
                 var vm = this;
 
                 vm.isWebCryptoSupported = function() {
-                    return CryptoService.isWebCryptoSupported();
+                    return CryptoService.isSupported();
                 };
 
                 vm.isWebStorageSupported = function() {
@@ -20,7 +20,7 @@
                 };
 
                 vm.generateChallenge = function() {
-                    return CryptoService.generateChallenge();
+                    return CryptoService.generateChallenge(32);
                 };
 
                 vm.register = function(challenge, appId) {
