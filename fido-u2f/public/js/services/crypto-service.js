@@ -19,7 +19,7 @@
             /**
              * Converts an array to a DOM string.
              *
-             * @param   {Uint32Array} array The array to convert.
+             * @param   {Uint8Array} array The array to convert.
              *
              * @returns {string}            The resulting string.
              *
@@ -45,7 +45,7 @@
              * @returns {ng.IPromise}   A promise that is resolved with the random challenge on completion.
              */
             function generateChallenge(length) {
-                var array       = new Uint32Array(length),
+                var array       = new Uint8Array(length),
                     deferred    = $q.defer();
 
                 $window['crypto']['getRandomValues'](array);
