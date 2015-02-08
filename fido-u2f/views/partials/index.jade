@@ -18,10 +18,10 @@ div(ng-controller="FidoController as ctrl")
   div.alert.alert-danger(ng-hide="ctrl.isWebStorageSupported()")
     strong Failure! #{''}
     span Web Storage not supported.
-  div.alert.alert-success(ng-show="ctrl.isFidoU2FAddOnInstalled()")
+  div.alert.alert-success(ng-show="ctrl.isFidoU2FSupported()")
     strong Success! #{''}
-    span FIDO U2F is installed.
-  div.alert.alert-danger(ng-hide="ctrl.isFidoU2FAddOnInstalled()")
+    span FIDO U2F add-on is installed.
+  div.alert.alert-danger(ng-hide="ctrl.isFidoU2FSupported()")
     strong Failure! #{''}
-    span FIDO U2F not installed.&nbsp;
+    span FIDO U2F add-on not installed.&nbsp;
     a(href="https://chrome.google.com/webstore/detail/fido-u2f-universal-2nd-fa/pfboblefjcgdjicmnffhdgionmgcdmne") Download here
