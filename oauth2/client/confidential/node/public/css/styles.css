@@ -1,10 +1,21 @@
 .btn-facebook {
     color: #fff;
     background-color: #3b5998;
-    border-color: #6d84b4;
+    border-color: #3b5998;
 }
 .btn-facebook:hover {
     color: #fff;
     background-color: #3b5998;
-    border-color: #afbdd4;
+    border-color: #3b5998;
+}
+
+.btn-google {
+    color: #fff;
+    background-color: #dd4b39;
+    border-color: #dd4b39;
+}
+.btn-google:hover {
+    color: #fff;
+    background-color: #dd4b39;
+    border-color: #dd4b39;
 }

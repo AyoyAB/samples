@@ -33,10 +33,17 @@ nconf.defaults({
         'userInfoEndpoint': 'https://graph.facebook.com/v2.2/me',
         // These are the OAuth2 scopes we request.
         'scope': 'public_profile email'
+    },
+    'google': {
+        'authEndpoint': 'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&state=%s',
+        'redirectEndpoint': 'http://localhost:3000/redirect/google',
+        'tokenEndpoint': 'https://www.googleapis.com/oauth2/v3/token',
+        'userInfoEndpoint': 'https://www.googleapis.com/plus/v1/people/me',
+        'scope': 'profile email'
     }
 });
 
-// Intercept facebook login calls.
+// Intercept Facebook login calls.
 app.get('/login/facebook', function(req, res) {
     // Generate random state to pass along to the auth endpoint.
     state = generateState();
@@ -48,6 +55,22 @@ app.get('/login/facebook', function(req, res) {
         nconf.get('facebook:clientId'),
         nconf.get('facebook:redirectEndpoint'),
         nconf.get('facebook:scope'),
+        state
+    ));
+});
+
+// Intercept Google login calls.
+app.get('/login/google', function(req, res) {
+    // Generate random state to pass along to the auth endpoint.
+    state = generateState();
+
+    // Redirect the user to the Google login dialog.
+    // NB: The client id must be pre-registered at Google, along with the redirect endpoint.
+    res.redirect(util.format(
+        nconf.get('google:authEndpoint'),
+        nconf.get('google:clientId'),
+        nconf.get('google:redirectEndpoint'),
+        nconf.get('google:scope'),
         state
     ));
 });
@@ -110,20 +133,20 @@ app.get('/redirect/facebook', function(req, res) {
             }
 
             // NB: Facebook doesn't return JSON as mandated by the spec.
-            var qs = querystring.parse(body);
+            var payload = querystring.parse(body);
 
             // NB: Facebook only returns an access_token, valid for approximately 60 days, no refresh_token.
             // NB: Facebook doesn't return the required token_type value. Implicitly bearer.
             // NB: Facebook returns expires, as opposed to expires_in.
-            if (!qs.access_token || !qs.expires) {
-                res.err('Error: access_token or expires missing');
+            if (!payload.access_token || !payload.expires) {
+                res.send('Error: access_token or expires missing');
             }
 
             // Request user information at the userinfo endpoint.
             // NB: The Facebook implementation predates OpenID Connect and is thus not compliant.
             request.get(nconf.get('facebook:userInfoEndpoint'), {
                 'auth': {
-                    'bearer': qs.access_token
+                    'bearer': payload.access_token
                 }},
                 function (err, response, body) {
                     // Check for errors.
@@ -137,7 +160,93 @@ app.get('/redirect/facebook', function(req, res) {
                     // TODO: Redirect to logged in page?
                     var userInfo = JSON.parse(body);
                     res.send('Successfully logged in Facebook user id: ' + userInfo.id + ', with name: ' + userInfo.name + ', and email:' + userInfo.email);
-                });
+                }
+            );
+        });
+});
+
+app.get('/redirect/google', function(req, res) {
+    // Make sure the state was sent, and matches what we sent. It's required regardless of whether the call worked.
+    if (!req.query.state) {
+        res.send('Error: No state was received');
+
+        return;
+    }
+    if (req.query.state !== state) {
+        res.send('Error: Received state does not match sent state');
+
+        return;
+    }
+
+    // Check for error, error_reason & error_description.
+    if (req.query.error) {
+        // Display error to user.
+        res.send(util.format(
+            'Error: %s, Reason: %s, Description: %s',
+            req.query.error,
+            req.query.error_reason,
+            req.query.error_description
+        ));
+
+        return;
+    }
+
+    // Make sure the auth code was sent.
+    if (!req.query.code) {
+        res.send('Error: No auth code was received');
+
+        return;
+    }
+
+    // Generate random state to pass along to the token endpoint.
+    state = generateState();
+
+    // Exchange the auth code for an access token.
+    request.post({
+        'url': nconf.get('google:tokenEndpoint'),
+        'form': {
+            'grant_type': 'authorization_code',
+            'code': req.query.code,
+            'redirect_uri': nconf.get('google:redirectEndpoint'),
+            'client_id': nconf.get('google:clientId'), // NB: Google doesn't parse the auth header.
+            'client_secret': nconf.get('google:clientSecret') // NB: Google doesn't parse the auth header.
+        }},
+        function (err, response, body) {
+            // Check for errors.
+            if (err) {
+                res.send('Error posting access_token: ' + err);
+
+                return;
+            }
+
+            // Parse the response.
+            var payload = JSON.parse(body);
+
+            if (!payload.access_token || !payload.expires_in) {
+                res.send('Error: access_token or expires missing');
+            }
+
+            // Request user information at the userinfo endpoint.
+            // NB: The Facebook implementation predates OpenID Connect and is thus not compliant.
+            request.get(nconf.get('google:userInfoEndpoint'), {
+                    'auth': {
+                        'bearer': payload.access_token
+                    }},
+                function (err, response, body) {
+                    // Check for errors.
+                    if (err) {
+                        res.send('Error fetching user information: ' + err);
+
+                        return;
+                    }
+
+                    // The body contains the user information as JSON.
+                    // TODO: Redirect to logged in page?
+                    var userInfo = JSON.parse(body);
+
+                    res.send('Successfully logged in Google user id: ' + userInfo.id + ', with name: ' + userInfo.displayName + ', and email:' + userInfo.emails[0].value);
+                }
+            );
         });
 });
 
