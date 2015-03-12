@@ -30,7 +30,7 @@ nconf.defaults({
         // We post directly to the Facebook token endpoint in order to exchange the auth code for an access token.
         'tokenEndpoint': 'https://graph.facebook.com/oauth/access_token',
         // This is where we request information about the user of the access token.
-        'userInfoEnpoint': 'https://graph.facebook.com/v2.2/me',
+        'userInfoEndpoint': 'https://graph.facebook.com/v2.2/me',
         // These are the OAuth2 scopes we request.
         'scope': 'public_profile email'
     }
@@ -90,7 +90,7 @@ app.get('/redirect/facebook', function(req, res) {
 
     // Exchange the auth code for an access token.
     request.post({
-        'url': 'https://graph.facebook.com/oauth/access_token',
+        'url': nconf.get('facebook:tokenEndpoint'),
         'auth': {
             'user': nconf.get('facebook:clientId'),
             'pass': nconf.get('facebook:clientSecret')
@@ -121,7 +121,7 @@ app.get('/redirect/facebook', function(req, res) {
 
             // Request user information at the userinfo endpoint.
             // NB: The Facebook implementation predates OpenID Connect and is thus not compliant.
-            request.get('userInfoEnpoint', {
+            request.get(nconf.get('facebook:userInfoEndpoint'), {
                 'auth': {
                     'bearer': qs.access_token
                 }},
@@ -134,9 +134,9 @@ app.get('/redirect/facebook', function(req, res) {
                     }
 
                     // The body contains the user information as JSON.
-                    // TODO: Store Facebook uid, email and name.
                     // TODO: Redirect to logged in page?
-                    res.send(body);
+                    var userInfo = JSON.parse(body);
+                    res.send('Successfully logged in Facebook user id: ' + userInfo.id + ', with name: ' + userInfo.name + ', and email:' + userInfo.email);
                 });
         });
 });
