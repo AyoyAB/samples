@@ -1,0 +1,22 @@
+{
+  "name": "node-server",
+  "version": "0.1.0",
+  "description": "Node.js OAuth2 Confidential Client Demo",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Oscar Jacobsson <oscar@ayoy.se> (http://www.ayoy.se/)",
+  "license": "ISC",
+  "keywords": [
+    "oauth2",
+    "confidential",
+    "client"
+  ],
+  "dependencies": {
+    "express": "^4.11.2",
+    "nconf": "^0.7.1",
+    "request": "^2.53.0"
+  }
+}
