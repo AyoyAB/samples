@@ -1,56 +1,21 @@
 "use strict";
 
-var crypto      = require('crypto'),
-    express     = require('express'),
+var express     = require('express'),
     nconf       = require('nconf'),
     querystring = require('querystring'),
     request     = require('request'),
-    util        = require('util'),
+
+    oauth2      = require('./lib/oauth2'),
 
     app         = express(),
-    state       = generateState(); // TODO: Store this in the client session instead.
-
-/**
- * Generates random state.
- *
- * @returns {string} the generated random state.
- */
-function generateState() {
-    return crypto.randomBytes(16).toString('hex');
-}
-
-/**
- * Redirects the browser to the given OAuth2 Authorization Endpoint.
- *
- * @param {object} response         the Express.js response object.
- * @param {string} authEndpoint     the OAuth2 Authorization Endpoint URI to redirect to.
- * @param {string} clientId         the OAuth2 Client Identifier to send.
- * @param {string} redirectEndpoint the OAUth2 Redirection Endpoint to send.
- * @param {string} scope            the OAuth2 Scope to request.
- */
-function redirectBrowserToAuthEndpoint(response, authEndpoint, clientId, redirectEndpoint, scope) {
-    // Generate random state to pass along to the auth endpoint.
-    state = generateState();
-
-    // Create the query string.
-    var qs = querystring.stringify({
-        'response_type': 'code',
-        'client_id': clientId,
-        'redirect_uri': redirectEndpoint,
-        'scope': scope,
-        'state': state
-    });
-
-    // Redirect the user to the Facebook login dialog.
-    // NB: The client id must be pre-registered at Facebook, along with the redirect endpoint.
-    response.redirect(authEndpoint + '?' + qs);
-}
+    state       = oauth2.generateState(); // TODO: Store this in the client session instead.
 
 // Load config from the settings file.
 nconf.file('config.json');
 
 // Provide config defaults.
 nconf.defaults({
+    // TODO: Store these as options objects instead.
     'facebook': {
         // We redirect the resource owner's browser to the Facebook auth endpoint in order to get the authorization code.
         'authEndpoint': 'https://www.facebook.com/dialog/oauth',
@@ -74,202 +39,156 @@ nconf.defaults({
 
 // Intercept Facebook login calls.
 app.get('/login/facebook', function(req, res) {
+    // Generate random state to pass along to the auth endpoint.
+    state = oauth2.generateState();
+
     // Redirect the user to the Facebook login dialog.
     // NB: The client id must be pre-registered at Facebook, along with the redirect endpoint.
-    redirectBrowserToAuthEndpoint(
+    oauth2.redirectToAuthEndpoint(
         res,
         nconf.get('facebook:authEndpoint'),
         nconf.get('facebook:clientId'),
         nconf.get('facebook:redirectEndpoint'),
-        nconf.get('facebook:scope')
+        nconf.get('facebook:scope'),
+        state
     );
 });
 
 // Intercept Google login calls.
 app.get('/login/google', function(req, res) {
+    // Generate random state to pass along to the auth endpoint.
+    state = oauth2.generateState();
+
     // Redirect the user to the Google login dialog.
     // NB: The client id must be pre-registered at Google, along with the redirect endpoint.
-    redirectBrowserToAuthEndpoint(
+    oauth2.redirectToAuthEndpoint(
         res,
         nconf.get('google:authEndpoint'),
         nconf.get('google:clientId'),
         nconf.get('google:redirectEndpoint'),
-        nconf.get('google:scope')
+        nconf.get('google:scope'),
+        state
     );
 });
 
 app.get('/redirect/facebook', function(req, res) {
-    // Make sure the state was sent, and matches what we sent. It's required regardless of whether the call worked.
-    if (!req.query.state) {
-        res.send('Error: No state was received');
+    oauth2.handleRedirect(req.query, state)
+        .then(function (authCode) {
+            // Generate random state to pass along to the token endpoint.
+            state = oauth2.generateState();
 
-        return;
-    }
-    if (req.query.state !== state) {
-        res.send('Error: Received state does not match sent state');
-
-        return;
-    }
-
-    // Check for error, error_reason & error_description.
-    if (req.query.error) {
-        // Display error to user.
-        res.send(util.format(
-            'Error: %s, Reason: %s, Description: %s',
-            req.query.error,
-            req.query.error_reason,
-            req.query.error_description
-        ));
-
-        return;
-    }
-
-    // Make sure the auth code was sent.
-    if (!req.query.code) {
-        res.send('Error: No auth code was received');
-
-        return;
-    }
-
-    // Generate random state to pass along to the token endpoint.
-    state = generateState();
-
-    // Exchange the auth code for an access token.
-    request.post({
-        'url': nconf.get('facebook:tokenEndpoint'),
-        'auth': {
-            'user': nconf.get('facebook:clientId'),
-            'pass': nconf.get('facebook:clientSecret')
-        },
-        'form': {
-            'grant_type': 'authorization_code',
-            'code': req.query.code,
-            'redirect_uri': nconf.get('facebook:redirectEndpoint'),
-            'client_id': nconf.get('facebook:clientId') // NB: Facebook requires this, even though we send it in the auth header as well.
-        }},
-        function (err, response, body) {
-            // Check for errors.
-            if (err) {
-                res.send('Error posting access_token: ' + err);
-
-                return;
-            }
-
-            // NB: Facebook doesn't return JSON as mandated by the spec.
-            var payload = querystring.parse(body);
-
-            // NB: Facebook only returns an access_token, valid for approximately 60 days, no refresh_token.
-            // NB: Facebook doesn't return the required token_type value. Implicitly bearer.
-            // NB: Facebook returns expires, as opposed to expires_in.
-            if (!payload.access_token || !payload.expires) {
-                res.send('Error: access_token or expires missing');
-            }
-
-            // Request user information at the userinfo endpoint.
-            // NB: The Facebook implementation predates OpenID Connect and is thus not compliant.
-            request.get(nconf.get('facebook:userInfoEndpoint'), {
-                'auth': {
-                    'bearer': payload.access_token
-                }},
-                function (err, response, body) {
-                    // Check for errors.
-                    if (err) {
-                        res.send('Error fetching user information: ' + err);
-
-                        return;
-                    }
-
-                    // The body contains the user information as JSON.
-                    // TODO: Redirect to logged in page?
-                    var userInfo = JSON.parse(body);
-                    res.send('Successfully logged in Facebook user id: ' + userInfo.id + ', with name: ' + userInfo.name + ', and email:' + userInfo.email);
-                }
-            );
-        });
-});
-
-app.get('/redirect/google', function(req, res) {
-    // Make sure the state was sent, and matches what we sent. It's required regardless of whether the call worked.
-    if (!req.query.state) {
-        res.send('Error: No state was received');
-
-        return;
-    }
-    if (req.query.state !== state) {
-        res.send('Error: Received state does not match sent state');
-
-        return;
-    }
-
-    // Check for error, error_reason & error_description.
-    if (req.query.error) {
-        // Display error to user.
-        res.send(util.format(
-            'Error: %s, Reason: %s, Description: %s',
-            req.query.error,
-            req.query.error_reason,
-            req.query.error_description
-        ));
-
-        return;
-    }
-
-    // Make sure the auth code was sent.
-    if (!req.query.code) {
-        res.send('Error: No auth code was received');
-
-        return;
-    }
-
-    // Generate random state to pass along to the token endpoint.
-    state = generateState();
-
-    // Exchange the auth code for an access token.
-    request.post({
-        'url': nconf.get('google:tokenEndpoint'),
-        'form': {
-            'grant_type': 'authorization_code',
-            'code': req.query.code,
-            'redirect_uri': nconf.get('google:redirectEndpoint'),
-            'client_id': nconf.get('google:clientId'), // NB: Google doesn't parse the auth header.
-            'client_secret': nconf.get('google:clientSecret') // NB: Google doesn't parse the auth header.
-        }},
-        function (err, response, body) {
-            // Check for errors.
-            if (err) {
-                res.send('Error posting access_token: ' + err);
-
-                return;
-            }
-
-            // Parse the response.
-            var payload = JSON.parse(body);
-
-            if (!payload.access_token || !payload.expires_in) {
-                res.send('Error: access_token or expires missing');
-            }
-
-            // Request user information at the userinfo endpoint.
-            // NB: The Facebook implementation predates OpenID Connect and is thus not compliant.
-            request.get(nconf.get('google:userInfoEndpoint'), {
+            // Exchange the auth code for an access token.
+            request.post({
+                    'url': nconf.get('facebook:tokenEndpoint'),
                     'auth': {
-                        'bearer': payload.access_token
+                        'user': nconf.get('facebook:clientId'),
+                        'pass': nconf.get('facebook:clientSecret')
+                    },
+                    'form': {
+                        'grant_type': 'authorization_code',
+                        'code': authCode,
+                        'redirect_uri': nconf.get('facebook:redirectEndpoint'),
+                        'client_id': nconf.get('facebook:clientId') // NB: Facebook requires this, even though we send it in the auth header as well.
                     }},
                 function (err, response, body) {
                     // Check for errors.
                     if (err) {
-                        res.send('Error fetching user information: ' + err);
+                        res.send('Error posting access_token: ' + err);
 
                         return;
                     }
 
-                    // The body contains the user information as JSON.
-                    // TODO: Redirect to logged in page?
-                    var userInfo = JSON.parse(body);
+                    // NB: Facebook doesn't return JSON as mandated by the spec.
+                    var payload = querystring.parse(body);
 
-                    res.send('Successfully logged in Google user id: ' + userInfo.id + ', with name: ' + userInfo.displayName + ', and email:' + userInfo.emails[0].value);
-                }
-            );
+                    // NB: Facebook only returns an access_token, valid for approximately 60 days, no refresh_token.
+                    // NB: Facebook doesn't return the required token_type value. Implicitly bearer.
+                    // NB: Facebook returns expires, as opposed to expires_in.
+                    if (!payload.access_token || !payload.expires) {
+                        res.send('Error: access_token or expires missing');
+                    }
+
+                    // Request user information at the userinfo endpoint.
+                    // NB: The Facebook implementation predates OpenID Connect and is thus not compliant.
+                    request.get(nconf.get('facebook:userInfoEndpoint'), {
+                            'auth': {
+                                'bearer': payload.access_token
+                            }},
+                        function (err, response, body) {
+                            // Check for errors.
+                            if (err) {
+                                res.send('Error fetching user information: ' + err);
+
+                                return;
+                            }
+
+                            // The body contains the user information as JSON.
+                            // TODO: Redirect to logged in page?
+                            var userInfo = JSON.parse(body);
+                            res.send('Successfully logged in Facebook user id: ' + userInfo.id + ', with name: ' + userInfo.name + ', and email:' + userInfo.email);
+                        }
+                    );
+                });
+        }, function (error) {
+            res.send('Error returned from auth endpoint: ' + error.message);
+        });
+});
+
+app.get('/redirect/google', function(req, res) {
+    oauth2.handleRedirect(req.query, state)
+        .then(function (authCode) {
+            // Generate random state to pass along to the token endpoint.
+            state = oauth2.generateState();
+
+            // Exchange the auth code for an access token.
+            request.post({
+                    'url': nconf.get('google:tokenEndpoint'),
+                    'form': {
+                        'grant_type': 'authorization_code',
+                        'code': authCode,
+                        'redirect_uri': nconf.get('google:redirectEndpoint'),
+                        'client_id': nconf.get('google:clientId'), // NB: Google doesn't parse the auth header.
+                        'client_secret': nconf.get('google:clientSecret') // NB: Google doesn't parse the auth header.
+                    }},
+                function (err, response, body) {
+                    // Check for errors.
+                    if (err) {
+                        res.send('Error posting access_token: ' + err);
+
+                        return;
+                    }
+
+                    // Parse the response.
+                    var payload = JSON.parse(body);
+
+                    if (!payload.access_token || !payload.expires_in) {
+                        res.send('Error: access_token or expires missing');
+                    }
+
+                    // Request user information at the userinfo endpoint.
+                    // NB: The Facebook implementation predates OpenID Connect and is thus not compliant.
+                    request.get(nconf.get('google:userInfoEndpoint'), {
+                            'auth': {
+                                'bearer': payload.access_token
+                            }},
+                        function (err, response, body) {
+                            // Check for errors.
+                            if (err) {
+                                res.send('Error fetching user information: ' + err);
+
+                                return;
+                            }
+
+                            // The body contains the user information as JSON.
+                            // TODO: Redirect to logged in page?
+                            var userInfo = JSON.parse(body);
+
+                            res.send('Successfully logged in Google user id: ' + userInfo.id + ', with name: ' + userInfo.displayName + ', and email:' + userInfo.emails[0].value);
+                        }
+                    );
+                });
+        }, function (error) {
+            res.send('Error returned from auth endpoint: ' + error.message);
         });
 });
 

@@ -1,5 +1,5 @@
 {
-  "name": "node-server",
+  "name": "oauth-confidential-client",
   "version": "0.1.0",
   "description": "Node.js OAuth2 Confidential Client Demo",
   "main": "index.js",
@@ -17,6 +17,7 @@
   "dependencies": {
     "express": "^4.11.2",
     "nconf": "^0.7.1",
+    "q": "^1.2.0",
     "request": "^2.53.0"
   }
 }
