@@ -3,7 +3,6 @@
 var express     = require('express'),
     nconf       = require('nconf'),
     querystring = require('querystring'),
-    request     = require('request'),
 
     oauth2      = require('./lib/oauth2'),
 
