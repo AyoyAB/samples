@@ -115,3 +115,32 @@ exports.postToTokenEndpoint = function (tokenEndpoint, clientId, clientSecret, a
             });
     });
 };
+
+/**
+ * Fetches user information from the OAuth2 UserInfo endpoint.
+ *
+ * @param {string} userInfoEndpoint The OAuth2 UserInfo endpoint.
+ * @param {string} accessToken      The OAuth2 Access Token received from the Token Endpoint.
+ *
+ * @returns {*} A promise that will be resolved with the returned user info object on success, or rejected with an Error
+ *              object on failure.
+ */
+exports.getUserInfo = function (userInfoEndpoint, accessToken) {
+    return Q.Promise(function (resolve, reject) {
+        // Request user information at the userinfo endpoint.
+        request.get(userInfoEndpoint, {
+                'auth': {
+                    'bearer': accessToken
+                }},
+            function (err, response, body) {
+                // Check for errors.
+                if (err) {
+                    reject(err);
+                }
+
+                // The body contains the user information as JSON.
+                resolve(JSON.parse(body));
+            }
+        );
+    });
+};

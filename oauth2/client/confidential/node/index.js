@@ -93,26 +93,12 @@ app.get('/redirect/facebook', function(req, res) {
                         res.send('Error: access_token or expires missing');
                     }
 
-                    // Request user information at the userinfo endpoint.
-                    // NB: The Facebook implementation predates OpenID Connect and is thus not compliant.
-                    request.get(nconf.get('facebook:userInfoEndpoint'), {
-                            'auth': {
-                                'bearer': payload.access_token
-                            }},
-                        function (err, response, body) {
-                            // Check for errors.
-                            if (err) {
-                                res.send('Error fetching user information: ' + err);
-
-                                return;
-                            }
-
-                            // The body contains the user information as JSON.
-                            // TODO: Redirect to logged in page?
-                            var userInfo = JSON.parse(body);
+                    oauth2.getUserInfo(nconf.get('facebook:userInfoEndpoint'), payload.access_token)
+                        .then(function (userInfo) {
                             res.send('Successfully logged in Facebook user id: ' + userInfo.id + ', with name: ' + userInfo.name + ', and email:' + userInfo.email);
-                        }
-                    );
+                        }, function (error){
+                            res.send('Error returned from user info endpoint: ' + error.message);
+                        });
                 }, function (error) {
                     res.send('Error returned from token endpoint: ' + error.message);
                 });
@@ -139,27 +125,12 @@ app.get('/redirect/google', function(req, res) {
                         res.send('Error: access_token or expires missing');
                     }
 
-                    // Request user information at the userinfo endpoint.
-                    // NB: The Facebook implementation predates OpenID Connect and is thus not compliant.
-                    request.get(nconf.get('google:userInfoEndpoint'), {
-                            'auth': {
-                                'bearer': payload.access_token
-                            }},
-                        function (err, response, body) {
-                            // Check for errors.
-                            if (err) {
-                                res.send('Error fetching user information: ' + err);
-
-                                return;
-                            }
-
-                            // The body contains the user information as JSON.
-                            // TODO: Redirect to logged in page?
-                            var userInfo = JSON.parse(body);
-
+                    oauth2.getUserInfo(nconf.get('google:userInfoEndpoint'), payload.access_token)
+                        .then(function (userInfo) {
                             res.send('Successfully logged in Google user id: ' + userInfo.id + ', with name: ' + userInfo.displayName + ', and email:' + userInfo.emails[0].value);
-                        }
-                    );
+                        }, function (error){
+                            res.send('Error returned from user info endpoint: ' + error.message);
+                        });
                 }, function (error) {
                     res.send('Error returned from token endpoint: ' + error.message);
                 });
