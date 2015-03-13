@@ -1,6 +1,7 @@
 "use strict";
 
 var crypto      = require('crypto'),
+    request     = require('request'),
     Q           = require('q'),
     querystring = require('querystring');
 
@@ -73,5 +74,44 @@ exports.handleRedirect = function (query, originalState) {
         }
 
         resolve(query.code);
+    });
+};
+
+/**
+ * Posts the Authorization Code to the OAuth2 Token Endpoint.
+ *
+ * @param {string} tokenEndpoint    the OAuth2 Token Endpoint URI to post to.
+ * @param {string} clientSecret     the OAuth2 Client Identifier to send.
+ * @param {string} clientId         the OAuth2 Client Secret to send.
+ * @param {string} authCode         the OAuth2 Authorization Code received from the Auth Endpoint.
+ * @param {string} redirectUri      the OAuth2 Redirect Endpoint sent to the Auth Endpoint.
+ *
+ * @returns {*} A promise that will be resolved with the returned response on success, or rejected with an Error object
+ *              on failure.
+ */
+exports.postToTokenEndpoint = function (tokenEndpoint, clientId, clientSecret, authCode, redirectUri) {
+    return Q.Promise(function (resolve, reject) {
+        // Exchange the auth code for an access token.
+        request.post({
+                'url': tokenEndpoint,
+                'auth': {
+                    'user': clientId,
+                    'pass': clientSecret
+                },
+                'form': {
+                    'grant_type': 'authorization_code',
+                    'code': authCode,
+                    'redirect_uri': redirectUri,
+                    'client_id': clientId,
+                    'client_secret': clientSecret
+                }},
+            function (err, response, body) {
+                if (err) {
+                    reject(err);
+                }
+
+                // TODO: Check status code?
+                resolve(body);
+            });
     });
 };

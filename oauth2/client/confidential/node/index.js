@@ -72,33 +72,17 @@ app.get('/login/google', function(req, res) {
 });
 
 app.get('/redirect/facebook', function(req, res) {
+    // Handle the redirect response.
     oauth2.handleRedirect(req.query, state)
         .then(function (authCode) {
-            // Generate random state to pass along to the token endpoint.
-            state = oauth2.generateState();
-
             // Exchange the auth code for an access token.
-            request.post({
-                    'url': nconf.get('facebook:tokenEndpoint'),
-                    'auth': {
-                        'user': nconf.get('facebook:clientId'),
-                        'pass': nconf.get('facebook:clientSecret')
-                    },
-                    'form': {
-                        'grant_type': 'authorization_code',
-                        'code': authCode,
-                        'redirect_uri': nconf.get('facebook:redirectEndpoint'),
-                        'client_id': nconf.get('facebook:clientId'),
-                        'client_secret': nconf.get('facebook:clientSecret')
-                    }},
-                function (err, response, body) {
-                    // Check for errors.
-                    if (err) {
-                        res.send('Error posting access_token: ' + err);
-
-                        return;
-                    }
-
+            oauth2.postToTokenEndpoint(
+                nconf.get('facebook:tokenEndpoint'),
+                nconf.get('facebook:clientId'),
+                nconf.get('facebook:clientSecret'),
+                authCode,
+                nconf.get('facebook:redirectEndpoint'))
+                .then(function (body) {
                     // NB: Facebook doesn't return JSON as mandated by the spec.
                     var payload = querystring.parse(body);
 
@@ -129,6 +113,8 @@ app.get('/redirect/facebook', function(req, res) {
                             res.send('Successfully logged in Facebook user id: ' + userInfo.id + ', with name: ' + userInfo.name + ', and email:' + userInfo.email);
                         }
                     );
+                }, function (error) {
+                    res.send('Error returned from token endpoint: ' + error.message);
                 });
         }, function (error) {
             res.send('Error returned from auth endpoint: ' + error.message);
@@ -138,31 +124,14 @@ app.get('/redirect/facebook', function(req, res) {
 app.get('/redirect/google', function(req, res) {
     oauth2.handleRedirect(req.query, state)
         .then(function (authCode) {
-            // Generate random state to pass along to the token endpoint.
-            state = oauth2.generateState();
-
             // Exchange the auth code for an access token.
-            request.post({
-                    'url': nconf.get('google:tokenEndpoint'),
-                    'auth': {
-                        'user': nconf.get('google:clientId'),
-                        'pass': nconf.get('google:clientSecret')
-                    },
-                    'form': {
-                        'grant_type': 'authorization_code',
-                        'code': authCode,
-                        'redirect_uri': nconf.get('google:redirectEndpoint'),
-                        'client_id': nconf.get('google:clientId'),
-                        'client_secret': nconf.get('google:clientSecret')
-                    }},
-                function (err, response, body) {
-                    // Check for errors.
-                    if (err) {
-                        res.send('Error posting access_token: ' + err);
-
-                        return;
-                    }
-
+            oauth2.postToTokenEndpoint(
+                nconf.get('google:tokenEndpoint'),
+                nconf.get('google:clientId'),
+                nconf.get('google:clientSecret'),
+                authCode,
+                nconf.get('google:redirectEndpoint'))
+                .then(function (body) {
                     // Parse the response.
                     var payload = JSON.parse(body);
 
@@ -191,6 +160,8 @@ app.get('/redirect/google', function(req, res) {
                             res.send('Successfully logged in Google user id: ' + userInfo.id + ', with name: ' + userInfo.displayName + ', and email:' + userInfo.emails[0].value);
                         }
                     );
+                }, function (error) {
+                    res.send('Error returned from token endpoint: ' + error.message);
                 });
         }, function (error) {
             res.send('Error returned from auth endpoint: ' + error.message);
