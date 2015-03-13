@@ -88,7 +88,8 @@ app.get('/redirect/facebook', function(req, res) {
                         'grant_type': 'authorization_code',
                         'code': authCode,
                         'redirect_uri': nconf.get('facebook:redirectEndpoint'),
-                        'client_id': nconf.get('facebook:clientId') // NB: Facebook requires this, even though we send it in the auth header as well.
+                        'client_id': nconf.get('facebook:clientId'),
+                        'client_secret': nconf.get('facebook:clientSecret')
                     }},
                 function (err, response, body) {
                     // Check for errors.
@@ -143,12 +144,16 @@ app.get('/redirect/google', function(req, res) {
             // Exchange the auth code for an access token.
             request.post({
                     'url': nconf.get('google:tokenEndpoint'),
+                    'auth': {
+                        'user': nconf.get('google:clientId'),
+                        'pass': nconf.get('google:clientSecret')
+                    },
                     'form': {
                         'grant_type': 'authorization_code',
                         'code': authCode,
                         'redirect_uri': nconf.get('google:redirectEndpoint'),
-                        'client_id': nconf.get('google:clientId'), // NB: Google doesn't parse the auth header.
-                        'client_secret': nconf.get('google:clientSecret') // NB: Google doesn't parse the auth header.
+                        'client_id': nconf.get('google:clientId'),
+                        'client_secret': nconf.get('google:clientSecret')
                     }},
                 function (err, response, body) {
                     // Check for errors.
