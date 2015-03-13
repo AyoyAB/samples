@@ -10,12 +10,41 @@ var crypto      = require('crypto'),
     app         = express(),
     state       = generateState(); // TODO: Store this in the client session instead.
 
+/**
+ * Generates random state.
+ *
+ * @returns {string} the generated random state.
+ */
 function generateState() {
     return crypto.randomBytes(16).toString('hex');
 }
 
-// Load config from the environment and command line.
-nconf.env().argv();
+/**
+ * Redirects the browser to the given OAuth2 Authorization Endpoint.
+ *
+ * @param {object} response         the Express.js response object.
+ * @param {string} authEndpoint     the OAuth2 Authorization Endpoint URI to redirect to.
+ * @param {string} clientId         the OAuth2 Client Identifier to send.
+ * @param {string} redirectEndpoint the OAUth2 Redirection Endpoint to send.
+ * @param {string} scope            the OAuth2 Scope to request.
+ */
+function redirectBrowserToAuthEndpoint(response, authEndpoint, clientId, redirectEndpoint, scope) {
+    // Generate random state to pass along to the auth endpoint.
+    state = generateState();
+
+    // Create the query string.
+    var qs = querystring.stringify({
+        'response_type': 'code',
+        'client_id': clientId,
+        'redirect_uri': redirectEndpoint,
+        'scope': scope,
+        'state': state
+    });
+
+    // Redirect the user to the Facebook login dialog.
+    // NB: The client id must be pre-registered at Facebook, along with the redirect endpoint.
+    response.redirect(authEndpoint + '?' + qs);
+}
 
 // Load config from the settings file.
 nconf.file('config.json');
@@ -24,7 +53,7 @@ nconf.file('config.json');
 nconf.defaults({
     'facebook': {
         // We redirect the resource owner's browser to the Facebook auth endpoint in order to get the authorization code.
-        'authEndpoint': 'https://www.facebook.com/dialog/oauth?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&state=%s',
+        'authEndpoint': 'https://www.facebook.com/dialog/oauth',
         // This is the redirect endpoint we send along to the auth endpoint. It has to match our configured redirect endpoint.
         'redirectEndpoint': 'http://localhost:3000/redirect/facebook',
         // We post directly to the Facebook token endpoint in order to exchange the auth code for an access token.
@@ -35,7 +64,7 @@ nconf.defaults({
         'scope': 'public_profile email'
     },
     'google': {
-        'authEndpoint': 'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&state=%s',
+        'authEndpoint': 'https://accounts.google.com/o/oauth2/auth',
         'redirectEndpoint': 'http://localhost:3000/redirect/google',
         'tokenEndpoint': 'https://www.googleapis.com/oauth2/v3/token',
         'userInfoEndpoint': 'https://www.googleapis.com/plus/v1/people/me',
@@ -45,34 +74,28 @@ nconf.defaults({
 
 // Intercept Facebook login calls.
 app.get('/login/facebook', function(req, res) {
-    // Generate random state to pass along to the auth endpoint.
-    state = generateState();
-
     // Redirect the user to the Facebook login dialog.
     // NB: The client id must be pre-registered at Facebook, along with the redirect endpoint.
-    res.redirect(util.format(
+    redirectBrowserToAuthEndpoint(
+        res,
         nconf.get('facebook:authEndpoint'),
         nconf.get('facebook:clientId'),
         nconf.get('facebook:redirectEndpoint'),
-        nconf.get('facebook:scope'),
-        state
-    ));
+        nconf.get('facebook:scope')
+    );
 });
 
 // Intercept Google login calls.
 app.get('/login/google', function(req, res) {
-    // Generate random state to pass along to the auth endpoint.
-    state = generateState();
-
     // Redirect the user to the Google login dialog.
     // NB: The client id must be pre-registered at Google, along with the redirect endpoint.
-    res.redirect(util.format(
+    redirectBrowserToAuthEndpoint(
+        res,
         nconf.get('google:authEndpoint'),
         nconf.get('google:clientId'),
         nconf.get('google:redirectEndpoint'),
-        nconf.get('google:scope'),
-        state
-    ));
+        nconf.get('google:scope')
+    );
 });
 
 app.get('/redirect/facebook', function(req, res) {
