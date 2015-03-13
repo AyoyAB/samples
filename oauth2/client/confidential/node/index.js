@@ -197,7 +197,6 @@ app.get('/redirect/linkedin', function(req, res) {
                         .then(function (userInfo) {
                             res.send('Successfully logged in LinkedIn user id: ' + userInfo.id + ', with name: ' + userInfo.formattedName + ', and email:' + userInfo.emailAddress);
                         }, function (error) {
-                            console.log('After userinfo2');
                             res.send('Error returned from LinkedIn user info endpoint: ' + error.message);
                         });
                 }, function (error) {
