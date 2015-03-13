@@ -6,5 +6,9 @@
   "google": {
     "clientId": "123456789012345",
     "clientSecret": "123456789abcdef0123456789abcdef0"
+  },
+  "linkedin": {
+    "clientId": "123456789012345",
+    "clientSecret": "123456789abcdef0123456789abcdef0"
   }
 }

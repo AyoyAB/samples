@@ -17,27 +17,29 @@ nconf.file('config.json');
 nconf.defaults({
     // TODO: Store these as options objects instead.
     'facebook': {
-        // We redirect the resource owner's browser to the Facebook auth endpoint in order to get the authorization code.
-        'authEndpoint': 'https://www.facebook.com/dialog/oauth',
-        // This is the redirect endpoint we send along to the auth endpoint. It has to match our configured redirect endpoint.
+        'authEndpoint':     'https://www.facebook.com/dialog/oauth',
         'redirectEndpoint': 'http://localhost:3000/redirect/facebook',
-        // We post directly to the Facebook token endpoint in order to exchange the auth code for an access token.
-        'tokenEndpoint': 'https://graph.facebook.com/oauth/access_token',
-        // This is where we request information about the user of the access token.
+        'tokenEndpoint':    'https://graph.facebook.com/oauth/access_token',
         'userInfoEndpoint': 'https://graph.facebook.com/v2.2/me',
-        // These are the OAuth2 scopes we request.
-        'scope': 'public_profile email'
+        'scope':            'public_profile email'
     },
     'google': {
-        'authEndpoint': 'https://accounts.google.com/o/oauth2/auth',
+        'authEndpoint':     'https://accounts.google.com/o/oauth2/auth',
         'redirectEndpoint': 'http://localhost:3000/redirect/google',
-        'tokenEndpoint': 'https://www.googleapis.com/oauth2/v3/token',
+        'tokenEndpoint':    'https://www.googleapis.com/oauth2/v3/token',
         'userInfoEndpoint': 'https://www.googleapis.com/plus/v1/people/me',
-        'scope': 'profile email'
+        'scope':            'profile email'
+    },
+    'linkedin': {
+        'authEndpoint':     'https://www.linkedin.com/uas/oauth2/authorization',
+        'redirectEndpoint': 'http://localhost:3000/redirect/linkedin',
+        'tokenEndpoint':    'https://www.linkedin.com/uas/oauth2/accessToken',
+        'userInfoEndpoint': 'https://api.linkedin.com/v1/people/~:(id,email-address,formatted-name)?format=json',
+        'scope':            'r_basicprofile r_emailaddress'
     }
 });
 
-// Intercept Facebook login calls.
+// Handle Facebook login calls.
 app.get('/login/facebook', function(req, res) {
     // Generate random state to pass along to the auth endpoint.
     state = oauth2.generateState();
@@ -54,7 +56,7 @@ app.get('/login/facebook', function(req, res) {
     );
 });
 
-// Intercept Google login calls.
+// Handle Google login calls.
 app.get('/login/google', function(req, res) {
     // Generate random state to pass along to the auth endpoint.
     state = oauth2.generateState();
@@ -71,6 +73,24 @@ app.get('/login/google', function(req, res) {
     );
 });
 
+// Handle LinkedIn login calls.
+app.get('/login/linkedin', function(req, res) {
+    // Generate random state to pass along to the auth endpoint.
+    state = oauth2.generateState();
+
+    // Redirect the user to the LinkedIn login dialog.
+    // NB: The client id must be pre-registered at LinkedIn, along with the redirect endpoint.
+    oauth2.redirectToAuthEndpoint(
+        res,
+        nconf.get('linkedin:authEndpoint'),
+        nconf.get('linkedin:clientId'),
+        nconf.get('linkedin:redirectEndpoint'),
+        nconf.get('linkedin:scope'),
+        state
+    );
+});
+
+// Handle Facebook redirects.
 app.get('/redirect/facebook', function(req, res) {
     // Handle the redirect response.
     oauth2.handleRedirect(req.query, state)
@@ -96,17 +116,18 @@ app.get('/redirect/facebook', function(req, res) {
                     oauth2.getUserInfo(nconf.get('facebook:userInfoEndpoint'), payload.access_token)
                         .then(function (userInfo) {
                             res.send('Successfully logged in Facebook user id: ' + userInfo.id + ', with name: ' + userInfo.name + ', and email:' + userInfo.email);
-                        }, function (error){
-                            res.send('Error returned from user info endpoint: ' + error.message);
+                        }, function (error) {
+                            res.send('Error returned from Facebook user info endpoint: ' + error.message);
                         });
                 }, function (error) {
-                    res.send('Error returned from token endpoint: ' + error.message);
+                    res.send('Error returned from Facebook token endpoint: ' + error.message);
                 });
         }, function (error) {
-            res.send('Error returned from auth endpoint: ' + error.message);
+            res.send('Error returned from Facebook auth endpoint: ' + error.message);
         });
 });
 
+// Handle Google redirects.
 app.get('/redirect/google', function(req, res) {
     oauth2.handleRedirect(req.query, state)
         .then(function (authCode) {
@@ -128,14 +149,48 @@ app.get('/redirect/google', function(req, res) {
                     oauth2.getUserInfo(nconf.get('google:userInfoEndpoint'), payload.access_token)
                         .then(function (userInfo) {
                             res.send('Successfully logged in Google user id: ' + userInfo.id + ', with name: ' + userInfo.displayName + ', and email:' + userInfo.emails[0].value);
-                        }, function (error){
-                            res.send('Error returned from user info endpoint: ' + error.message);
+                        }, function (error) {
+                            res.send('Error returned from Google user info endpoint: ' + error.message);
                         });
                 }, function (error) {
-                    res.send('Error returned from token endpoint: ' + error.message);
+                    res.send('Error returned from Google token endpoint: ' + error.message);
                 });
         }, function (error) {
-            res.send('Error returned from auth endpoint: ' + error.message);
+            res.send('Error returned from Google auth endpoint: ' + error.message);
+        });
+});
+
+// Handle LinkedIn redirects.
+app.get('/redirect/linkedin', function(req, res) {
+    oauth2.handleRedirect(req.query, state)
+        .then(function (authCode) {
+            // Exchange the auth code for an access token.
+            oauth2.postToTokenEndpoint(
+                nconf.get('linkedin:tokenEndpoint'),
+                nconf.get('linkedin:clientId'),
+                nconf.get('linkedin:clientSecret'),
+                authCode,
+                nconf.get('linkedin:redirectEndpoint'))
+                .then(function (body) {
+                    // Parse the response.
+                    var payload = JSON.parse(body);
+
+                    if (!payload.access_token || !payload.expires_in) {
+                        res.send('Error: access_token or expires missing');
+                    }
+
+                    oauth2.getUserInfo(nconf.get('linkedin:userInfoEndpoint'), payload.access_token)
+                        .then(function (userInfo) {
+                            res.send('Successfully logged in LinkedIn user id: ' + userInfo.id + ', with name: ' + userInfo.formattedName + ', and email:' + userInfo.emailAddress);
+                        }, function (error) {
+                            console.log('After userinfo2');
+                            res.send('Error returned from LinkedIn user info endpoint: ' + error.message);
+                        });
+                }, function (error) {
+                    res.send('Error returned from LinkedIn token endpoint: ' + error.message);
+                });
+        }, function (error) {
+            res.send('Error returned from LinkedIn auth endpoint: ' + error.message);
         });
 });
 
