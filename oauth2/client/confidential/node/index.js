@@ -9,34 +9,49 @@ var express     = require('express'),
     app         = express(),
     state       = oauth2.generateState(); // TODO: Store this in the client session instead.
 
-// Load config from the settings file.
-nconf.file('config.json');
+/**
+ * Creates the absolute Redirect Endpoint URI for the specified path.
+ *
+ * @param {string} path The path to use.
+ *
+ * @returns {string} The absolute Redirect Endpoint URI.
+ */
+function createRedirectEndpointUri(path) {
+    return 'http://' + nconf.get('hostname') + ':' + nconf.get('port') + path;
+}
 
 // Provide config defaults.
 nconf.defaults({
+    // NB: Microsoft won't allow a redirect URI for localhost, so if you wish to use Live ID you'll need to set up an alias.
+    'hostname': 'localhost',
+    'port': 3000,
+
     // TODO: Store these as options objects instead.
     'facebook': {
         'authEndpoint':     'https://www.facebook.com/dialog/oauth',
-        'redirectEndpoint': 'http://localhost:3000/redirect/facebook',
         'tokenEndpoint':    'https://graph.facebook.com/oauth/access_token',
         'userInfoEndpoint': 'https://graph.facebook.com/v2.2/me',
+        'redirectPath':     '/redirect/facebook',
         'scope':            'public_profile email'
     },
     'google': {
         'authEndpoint':     'https://accounts.google.com/o/oauth2/auth',
-        'redirectEndpoint': 'http://localhost:3000/redirect/google',
         'tokenEndpoint':    'https://www.googleapis.com/oauth2/v3/token',
         'userInfoEndpoint': 'https://www.googleapis.com/plus/v1/people/me',
+        'redirectPath':     '/redirect/google',
         'scope':            'profile email'
     },
     'linkedin': {
         'authEndpoint':     'https://www.linkedin.com/uas/oauth2/authorization',
-        'redirectEndpoint': 'http://localhost:3000/redirect/linkedin',
         'tokenEndpoint':    'https://www.linkedin.com/uas/oauth2/accessToken',
         'userInfoEndpoint': 'https://api.linkedin.com/v1/people/~:(id,email-address,formatted-name)?format=json',
+        'redirectPath':     '/redirect/linkedin',
         'scope':            'r_basicprofile r_emailaddress'
     }
 });
+
+// Load config from the settings file.
+nconf.file('config.json');
 
 // Handle Facebook login calls.
 app.get('/login/facebook', function(req, res) {
@@ -49,7 +64,7 @@ app.get('/login/facebook', function(req, res) {
         res,
         nconf.get('facebook:authEndpoint'),
         nconf.get('facebook:clientId'),
-        nconf.get('facebook:redirectEndpoint'),
+        createRedirectEndpointUri(nconf.get('facebook:redirectPath')),
         nconf.get('facebook:scope'),
         state
     );
@@ -66,7 +81,7 @@ app.get('/login/google', function(req, res) {
         res,
         nconf.get('google:authEndpoint'),
         nconf.get('google:clientId'),
-        nconf.get('google:redirectEndpoint'),
+        createRedirectEndpointUri(nconf.get('google:redirectPath')),
         nconf.get('google:scope'),
         state
     );
@@ -83,7 +98,7 @@ app.get('/login/linkedin', function(req, res) {
         res,
         nconf.get('linkedin:authEndpoint'),
         nconf.get('linkedin:clientId'),
-        nconf.get('linkedin:redirectEndpoint'),
+        createRedirectEndpointUri(nconf.get('linkedin:redirectPath')),
         nconf.get('linkedin:scope'),
         state
     );
@@ -100,7 +115,7 @@ app.get('/redirect/facebook', function(req, res) {
                 nconf.get('facebook:clientId'),
                 nconf.get('facebook:clientSecret'),
                 authCode,
-                nconf.get('facebook:redirectEndpoint'))
+                createRedirectEndpointUri(nconf.get('facebook:redirectPath')))
                 .then(function (body) {
                     // NB: Facebook doesn't return JSON as mandated by the spec.
                     var payload = querystring.parse(body);
@@ -136,7 +151,7 @@ app.get('/redirect/google', function(req, res) {
                 nconf.get('google:clientId'),
                 nconf.get('google:clientSecret'),
                 authCode,
-                nconf.get('google:redirectEndpoint'))
+                createRedirectEndpointUri(nconf.get('google:redirectPath')))
                 .then(function (body) {
                     // Parse the response.
                     var payload = JSON.parse(body);
@@ -169,7 +184,7 @@ app.get('/redirect/linkedin', function(req, res) {
                 nconf.get('linkedin:clientId'),
                 nconf.get('linkedin:clientSecret'),
                 authCode,
-                nconf.get('linkedin:redirectEndpoint'))
+                createRedirectEndpointUri(nconf.get('linkedin:redirectPath')))
                 .then(function (body) {
                     // Parse the response.
                     var payload = JSON.parse(body);
@@ -196,5 +211,5 @@ app.get('/redirect/linkedin', function(req, res) {
 // Serve static files from the 'public' directory as a fallback.
 app.use(express.static(__dirname + '/public'));
 
-app.listen(3000);
-console.log('Express started on port 3000');
+app.listen(nconf.get('port'));
+console.log('Express started on ' + nconf.get('hostname') + ':' + nconf.get('port'));
