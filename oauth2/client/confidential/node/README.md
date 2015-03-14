@@ -1,3 +1,5 @@
+# Node.js Sample OAuth2 Confidential Client
+
 This project contains sample code for signing in users with OAuth2 in Node.js.
 The code implements the OAuth2 authorization code flow, with the Node.js web
 server acting as a confidential client. This flow allows the authorization
@@ -8,7 +10,7 @@ easy to  adapt to other OUAth2 providers. The main caveat being the "UserInfo"
 endpoint, used to fetch information about the authenticated user, which is
 neither mandated nor specified by the OAuth2 standard.
 
-# Pre-requisites
+## Pre-requisites
 
 Before you can sign in with an external OAuth2 authorization server you need to
 register your client. For the supported social login providers this is
@@ -19,7 +21,7 @@ We will also need to register a redirect URI for our client, which is the
 address the authorization will redirect the browser to after authenticating the
 resource owner.
 
-## Facebook
+### Facebook
 
 Registering a new app with Facebook can be done at [developers.facebook.com]
 (https://developers.facebook.com/apps/).
@@ -52,15 +54,15 @@ The Facebook documentation for manually building a Facebook login flow is
 available [here]
 (https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/v2.2).
 
-## Google
+### Google
 
 TODO
 
-## LinkedIn
+### LinkedIn
 
 TODO
 
-# Setup
+## Setup
 
 * Clone the repository and copy `config.json.sample` to `config.json`.
 * Edit `config.json`, supplying `clientId`s and `clientSecret`s for those
@@ -70,7 +72,7 @@ TODO
   `config.json` and set `port` to the desired port. You will need to update the
   redirect URIs you have already registered with any authorization servers
 
-# Use
+## Use
 
 * Start the server with the `npm start` command.
 * Point your web browser at `http://localhost:3000`. Please note that this URI
