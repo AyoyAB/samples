@@ -26,6 +26,7 @@ resource owner.
 Registering a new app with Facebook can be done at [developers.facebook.com]
 (https://developers.facebook.com/apps/).
 
+* Click `Add a New App` to begin.
 * Select the web platform when prompted, enter a name for the app, and click
   `Create New Facebook App ID`.
 * Select a category from the dropdown box and click `Create App ID`.
@@ -50,13 +51,42 @@ With all settings at their default, the redirect URI would be
 the port you will need to update the redirect URI to match. Finally, click
 `Save Changes` to complete the registration process.
 
-The Facebook documentation for manually building a Facebook login flow is
+The Facebook documentation for manually building a Facebook sign in flow is
 available [here]
 (https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow/v2.2).
 
 ### Google
 
-TODO
+Registering a new app with Google can be done at the
+[Google Developers Console](https://console.developers.google.com/project).
+
+* Click `Create Project` to begin.
+* Enter a project name and ID and click `CREATE`.
+* Wait for the operation to complete and then click `APIs & auth` and then
+  `Credentials` from the sidebar menu.
+* Click `Create new Client ID` under the `OAuth` heading, make sure
+  `Web application` is selected in the displayed modal window, and click
+  `Configure consent screen`.
+* Select an e-mail address and enter a product name for your consent page and
+  click `Save`.
+* Replace the default value of `https://www.example.com/oauth2callback` for
+  Authorized Redirect URIs with the redirect URI for the client.
+
+With all settings at their default, the redirect URI would be
+`http://localhost:3000/redirect/google`, but if you change the hostname or
+the port you will need to update the redirect URI to match. Finally, click
+`Create Client ID` to complete the registration process.
+
+The `Client ID` and `Client Secret` will now be displayed on the `Credentials`
+page. These are the values you will use for `clientId` and `clientSecret`
+respectively in the Setup phase below.
+
+For Google sign in to work, we also need to enable the Google+ API. In order to
+do this, click  `APIs & auth` and then `APIs` from the sidebar menu. Scroll
+down to the `Google+ API` row and click the `Off` button to enable the API.
+
+The Google documentation for manually building a Google sign in flow is
+available [here](https://developers.google.com/accounts/docs/OAuth2WebServer).
 
 ### LinkedIn
 
