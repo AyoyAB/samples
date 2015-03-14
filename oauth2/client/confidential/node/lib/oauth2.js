@@ -139,8 +139,15 @@
                         reject(err);
                     }
 
+                    var parsedBody = JSON.parse(body);
+
+                    // If the parsed body contains an 'error' object, the operation failed.
+                    if (parsedBody.error) {
+                        reject(new Error(parsedBody.error.message))
+                    }
+
                     // The body contains the user information as JSON.
-                    resolve(JSON.parse(body));
+                    resolve(parsedBody);
                 }
             );
         });
