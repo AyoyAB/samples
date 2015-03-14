@@ -1,13 +1,18 @@
 {
+  "hostname": "localhost",
+  "port": 3000,
   "facebook": {
+    "enabled": false,
     "clientId": "123456789012345",
     "clientSecret": "123456789abcdef0123456789abcdef0"
   },
   "google": {
+    "enabled": false,
     "clientId": "123456789012345",
     "clientSecret": "123456789abcdef0123456789abcdef0"
   },
   "linkedin": {
+    "enabled": false,
     "clientId": "123456789012345",
     "clientSecret": "123456789abcdef0123456789abcdef0"
   }

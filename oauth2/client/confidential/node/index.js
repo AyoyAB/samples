@@ -23,10 +23,6 @@
 
     // Provide config defaults.
     nconf.defaults({
-        // NB: Microsoft won't allow a redirect URI for localhost, so if you wish to use Live ID you'll need to set up an alias.
-        'hostname': 'localhost',
-        'port': 3000,
-
         // TODO: Store these as options objects instead.
         'facebook': {
             'authEndpoint':     'https://www.facebook.com/dialog/oauth',
