@@ -12,7 +12,12 @@
         _state      = '';
 
     router.get('/', function(req, res) {
-      res.render('index', { title: 'Node.js OAuth2 Confidential Client Demo' });
+      res.render('index', {
+          title:                    'Node.js OAuth2 Confidential Client Demo',
+          facebookDisabledState:    nconf.get('facebook:enabled') === true ? '' : 'disabled="disabled"',
+          googleDisabledState:      nconf.get('google:enabled')   === true ? '' : 'disabled="disabled"',
+          linkedInDisabledState:    nconf.get('linkedin:enabled') === true ? '' : 'disabled="disabled"'
+      });
     });
 
     // Handle Facebook login calls.

@@ -17,13 +17,13 @@
     <h1>Node.js OAuth2 Confidential Client Demo</h1>
     <hr>
     <p>
-        <a href="/login/facebook" class="btn btn-facebook"><i class="fa fa-lg fa-fw fa-facebook-official"></i>&nbsp; Sign in with Facebook</a>
+        <a href="/login/facebook" class="btn btn-facebook" {{ facebookDisabledState }}><i class="fa fa-lg fa-fw fa-facebook-official"></i>&nbsp; Sign in with Facebook</a>
     </p>
     <p>
-        <a href="/login/google" class="btn btn-google"><i class="fa fa-lg fa-fw fa-google-plus-square"></i>&nbsp; Sign in with Google</a>
+        <a href="/login/google" class="btn btn-google" {{ googleDisabledState }}><i class="fa fa-lg fa-fw fa-google-plus-square"></i>&nbsp; Sign in with Google</a>
     </p>
     <p>
-        <a href="/login/linkedin" class="btn btn-linkedin"><i class="fa fa-lg fa-fw fa-linkedin-square"></i>&nbsp; Sign in with LinkedIn</a>
+        <a href="/login/linkedin" class="btn btn-linkedin" {{ linkedInDisabledState }}><i class="fa fa-lg fa-fw fa-linkedin-square"></i>&nbsp; Sign in with LinkedIn</a>
     </p>
     <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
