@@ -96,7 +96,7 @@ TODO
 
 * Clone the repository and copy `config.json.sample` to `config.json`.
 * Edit `config.json`, supplying `clientId`s and `clientSecret`s for those
-  OAuth2 providers you have successully registered with and set their `enabled`
+  OAuth2 providers you have successfully registered with and set their `enabled`
   flags to `true` in order to enable them on the test web page.
 * If you need to change the port the sample web server runs at, edit
   `config.json` and set `port` to the desired port. You will need to update the
@@ -106,12 +106,12 @@ TODO
 
 * Start the server with the `npm start` command.
 * Point your web browser at `http://localhost:3000`. Please note that this URI
-  will change if you change the server hostname or port.
+  will change if you change the server hostname or port in the configuration.
 * Click the sign in button of any of the OAuth2 providers you have configured
   and enabled during setup.
-* NB: The first time you sign a resource owner in with a provider, aconsent
+* NB: The first time you sign a resource owner in with a provider, a consent
   screen will be displayed, informing the resource owner that you are signing
   them in using your registered app. This screen will not be displayed on
-  successive signing ins.
+  subsequent signing ins.
 * NB: The sample code doesn't save the login state in any way, so you simply
   need to reload the main page in order to retry.
