@@ -1,19 +1,9 @@
 (function () {
     "use strict";
 
-    var crypto      = require('crypto'),
-        request     = require('request'),
-        Q           = require('q'),
-        querystring = require('querystring');
-
-    /**
-     * Generates random state.
-     *
-     * @returns {string} the generated random state.
-     */
-    exports.generateState = function () {
-        return crypto.randomBytes(16).toString('hex');
-    };
+    var Q           = require('q'),
+        querystring = require('querystring'),
+        request     = require('request');
 
     /**
      * Redirects the browser to the given OAuth2 Authorization Endpoint.
