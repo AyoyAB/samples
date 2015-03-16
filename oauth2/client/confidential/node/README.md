@@ -90,7 +90,30 @@ available [here](https://developers.google.com/accounts/docs/OAuth2WebServer).
 
 ### LinkedIn
 
-TODO
+Registering a new app with LinkedIn can be done at the
+[LinkedIn Developer Network](https://www.linkedin.com/secure/developer).
+
+* Click `Add New Application` to begin.
+* Fill in the required fields under the Company Info, Application Info, and
+  Contact Info fields as appropriate. These do not directly affect the sample
+  code.
+* Make sure both `r_basicprofile` and `r_emailaddress` are checked under the
+  OAuth User Agreement heading, and enter the redirect URI for the client as
+  the `OAuth 2.0 Redirect URLs`.
+
+With all settings at their default, the redirect URI would be
+`http://localhost:3000/redirect/linkedin`, but if you change the hostname or
+the port you will need to update the redirect URI to match. Finally, check the
+box indicating that you agree with the terms of use and click `Add Application`
+to complete the registration process.
+
+The `API Key` and `Secret Key` will now be displayed on the confirmation
+page. These are the values you will use for `clientId` and `clientSecret`
+respectively in the Setup phase below.
+
+The LinkedIn documentation for manually building a LinkedIn sign in flow is
+available [here](https://developer.linkedin.com/docs/signin-with-linkedin) and
+[here](https://developer.linkedin.com/docs/oauth2).
 
 ## Setup
 
