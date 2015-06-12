@@ -1,0 +1,22 @@
+{
+  "name": "oauth-authorization-server",
+  "version": "0.1.0",
+  "description": "Node.js OAuth2 Authorization Server Demo",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Oscar Jacobsson <oscar@ayoy.se> (http://www.ayoy.se/)",
+  "license": "ISC",
+  "keywords": [
+    "oauth2",
+    "authorization",
+    "server"
+  ],
+  "dependencies": {
+    "express": "^4.12.4",
+    "hjs": "0.0.6",
+    "nconf": "^0.7.1"
+  }
+}
