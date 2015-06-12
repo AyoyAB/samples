@@ -1,13 +1,13 @@
 (function () {
     "use strict";
 
-    var express     = require('express'),
-        nconf       = require('nconf'),
-        path        = require('path'),
+    var express = require('express'),
+        nconf   = require('nconf'),
+        path    = require('path'),
 
-        routes      = require('./routes/index'),
+        routes  = require('./routes/index'),
 
-        app         = express();
+        app     = express();
 
     // Provide config defaults.
     nconf.defaults({
