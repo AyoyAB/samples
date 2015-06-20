@@ -1,0 +1,9 @@
+{
+  "missing_client_id": "Missing or invalid client_id.",
+  "invalid_client_id": "Missing or invalid client_id.",
+  "missing_redirect_uri": "Missing redirect_uri.",
+  "invalid_redirect_uri": "Invalid redirect_uri.",
+  "missing_state": "Missing state.",
+  "missing_response_type": "Missing response_type.",
+  "invalid_response_type": "Invalid response_type."
+}

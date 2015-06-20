@@ -1,0 +1,9 @@
+{
+  "clients": {
+    "unitTestClient": {
+      "clientId": "unitTestClient",
+      "redirectUri": "https://localhost/oauth2/cb",
+      "responseType": "code"
+    }
+  }
+}
