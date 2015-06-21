@@ -2,7 +2,8 @@
     "use strict";
 
     var nconf       = require('nconf'),
-        querystring = require('querystring');
+        querystring = require('querystring'),
+        _           = require('lodash');
 
     // The OAuth2 authorization endpoint.
     function getAuthorization(req, res) {
@@ -12,7 +13,9 @@
             scope           = req.query.scope,
             state           = req.query.state,
             config          = nconf.get('clients'),
-            clientConfig;
+            clientConfig,
+            requestedScopes,
+            matchedScopes;
 
         // Make sure a client_id was sent.
         if (!clientId) {
@@ -40,7 +43,7 @@
         }
 
         // Make sure a valid redirect_uri was sent.
-        if (clientConfig.redirectUri.indexOf(redirectUri) !== 0) {
+        if (redirectUri !=  clientConfig.redirectUri) {
             // Inform the resource owner of the invalid redirect_uri.
             res.status(400).send(res.__('invalid_redirect_uri'));
             return;
@@ -72,14 +75,40 @@
         if (responseType !== clientConfig.responseType) {
             // Send an error to the redirect_uri callback.
             res.redirect(302, redirectUri + '?' + querystring.stringify({
-                    error: 'invalid_request',
+                    error: 'unsupported_response_type',
                     error_description: res.__('invalid_response_type'),
                     state: state
                 }));
             return;
         }
 
-        // TODO: Validate scope.
+        // Make sure a scope was sent.
+        if (!scope) {
+            // Send an error to the redirect_uri callback.
+            res.redirect(302, redirectUri + '?' + querystring.stringify({
+                    error: 'invalid_scope',
+                    error_description: res.__('missing_scope'),
+                    state: state
+                }));
+            return;
+        }
+
+        // scope is actually a space-separated list.
+        requestedScopes = scope.split(' ');
+
+        // Match the scopes against the configured ones.
+        matchedScopes = _.intersection(requestedScopes, clientConfig.scopes);
+
+        // Make sure at least one configured scope was matched.
+        if (_.isEmpty(matchedScopes)) {
+            // Send an error to the redirect_uri callback.
+            res.redirect(302, redirectUri + '?' + querystring.stringify({
+                    error: 'invalid_scope',
+                    error_description: res.__('invalid_scope'),
+                    state: state
+                }));
+            return;
+        }
 
         // TODO: Display static page with login form and consent checkbox.
         res.send('Hello World!');

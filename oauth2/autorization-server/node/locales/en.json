@@ -5,5 +5,7 @@
   "invalid_redirect_uri": "Invalid redirect_uri.",
   "missing_state": "Missing state.",
   "missing_response_type": "Missing response_type.",
-  "invalid_response_type": "Invalid response_type."
+  "invalid_response_type": "Invalid response_type.",
+  "missing_scope": "Missing scope.",
+  "invalid_scope": "Invalid scope."
 }

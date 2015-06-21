@@ -66,24 +66,61 @@ describe('Routes', function() {
 
            it('shall reject a missing response_type query parameter', function(done) {
                request(app)
-                   .get('/oauth2/authorization?client_id=' + encodeURIComponent(clientConfig.clientId) + '&redirect_uri=' + encodeURIComponent(clientConfig.redirectUri) + '&state=xyzzy')
+                   .get('/oauth2/authorization?client_id=' + encodeURIComponent(clientConfig.clientId) + '&redirect_uri=' + encodeURIComponent(clientConfig.redirectUri) + '&state=abc123')
                    .expect(302)
-                   .expect('Location', clientConfig.redirectUri + '?error=invalid_request&error_description=' + encodeURIComponent(i18n.__('missing_response_type')) + '&state=xyzzy')
+                   .expect('Location', clientConfig.redirectUri + '?error=invalid_request&error_description=' + encodeURIComponent(i18n.__('missing_response_type')) + '&state=abc123')
                    .end(done);
            });
 
            it('shall reject an unknown response_type query parameter', function(done) {
                request(app)
-                   .get('/oauth2/authorization?client_id=' + encodeURIComponent(clientConfig.clientId) + '&redirect_uri=' + encodeURIComponent(clientConfig.redirectUri) + '&state=xyzzy&response_type=xyzzy')
+                   .get('/oauth2/authorization?client_id=' + encodeURIComponent(clientConfig.clientId) + '&redirect_uri=' + encodeURIComponent(clientConfig.redirectUri) + '&state=abc123&response_type=xyzzy')
                    .expect(302)
-                   .expect('Location', clientConfig.redirectUri + '?error=invalid_request&error_description=' + encodeURIComponent(i18n.__('invalid_response_type')) + '&state=xyzzy')
+                   .expect('Location', clientConfig.redirectUri + '?error=unsupported_response_type&error_description=' + encodeURIComponent(i18n.__('invalid_response_type')) + '&state=abc123')
                    .end(done);
            });
 
-           // TODO: Re-evaluate this
-           it('shall accept a scope-less request', function(done) {
+           // Reject missing scope.
+           it('shall reject a scope-less request', function(done) {
                request(app)
-                   .get('/oauth2/authorization?client_id=' + encodeURIComponent(clientConfig.clientId) + '&redirect_uri=' + encodeURIComponent(clientConfig.redirectUri) + '&state=xyzzy&response_type=' + encodeURIComponent(clientConfig.responseType))
+                   .get('/oauth2/authorization?client_id=' + encodeURIComponent(clientConfig.clientId) + '&redirect_uri=' + encodeURIComponent(clientConfig.redirectUri) + '&state=abc123&response_type=' + encodeURIComponent(clientConfig.responseType))
+                   .expect(302)
+                   .expect('Location', clientConfig.redirectUri + '?error=invalid_scope&error_description=' + encodeURIComponent(i18n.__('missing_scope')) + '&state=abc123')
+                   .end(done);
+           });
+
+           // Reject unsupported scopes.
+           it('shall reject strictly unsupported scopes', function(done) {
+               request(app)
+                   .get('/oauth2/authorization?client_id=' + encodeURIComponent(clientConfig.clientId) + '&redirect_uri=' + encodeURIComponent(clientConfig.redirectUri) + '&state=abc123&response_type=' + encodeURIComponent(clientConfig.responseType) + '&scope=xyzzy')
+                   .expect(302)
+                   .expect('Location', clientConfig.redirectUri + '?error=invalid_scope&error_description=' + encodeURIComponent(i18n.__('invalid_scope')) + '&state=abc123')
+                   .end(done);
+           });
+
+           // Accept single supported scope.
+           // TODO: Validate info in hidden fields matches request.
+           it('shall accept a single supported scope', function(done) {
+               request(app)
+                   .get('/oauth2/authorization?client_id=' + encodeURIComponent(clientConfig.clientId) + '&redirect_uri=' + encodeURIComponent(clientConfig.redirectUri) + '&state=abc123&response_type=' + encodeURIComponent(clientConfig.responseType) + '&scope=' + encodeURIComponent(clientConfig.scopes[0]))
+                   .expect(200)
+                   .end(done);
+           });
+
+           // Accept multiple supported scopes.
+           // TODO: Validate info in hidden fields matches request.
+           it('shall accept multiple supported scopes', function(done) {
+               request(app)
+                   .get('/oauth2/authorization?client_id=' + encodeURIComponent(clientConfig.clientId) + '&redirect_uri=' + encodeURIComponent(clientConfig.redirectUri) + '&state=abc123&response_type=' + encodeURIComponent(clientConfig.responseType) + '&scope=' + encodeURIComponent(clientConfig.scopes[0] + ' ' + clientConfig.scopes[1]))
+                   .expect(200)
+                   .end(done);
+           });
+
+           // Filter out unknown scopes.
+           // TODO: Validate info in hidden fields matches request.
+           it('shall filter out unknown additional scopes', function(done) {
+               request(app)
+                   .get('/oauth2/authorization?client_id=' + encodeURIComponent(clientConfig.clientId) + '&redirect_uri=' + encodeURIComponent(clientConfig.redirectUri) + '&state=abc123&response_type=' + encodeURIComponent(clientConfig.responseType) + '&scope=' + encodeURIComponent(clientConfig.scopes[0] + ' ' + clientConfig.scopes[1] + ' xyzzy'))
                    .expect(200)
                    .end(done);
            });
