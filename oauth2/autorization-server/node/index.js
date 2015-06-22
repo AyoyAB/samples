@@ -24,11 +24,11 @@
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'hjs');
 
-    // Set up the routes.
-    app.use('/', routes);
-
     // Wire up i18n.
     app.use(i18n.init);
+
+    // Set up the routes.
+    app.use('/', routes);
 
     // Serve static files from the 'public' directory as a fallback.
     app.use(express.static(path.join(__dirname, 'public')));
