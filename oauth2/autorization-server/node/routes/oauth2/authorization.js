@@ -71,7 +71,7 @@
             return;
         }
 
-        // Make sure a valid redirect_uri was sent.
+        // Make sure a valid response_type was sent.
         if (responseType !== clientConfig.responseType) {
             // Send an error to the redirect_uri callback.
             res.redirect(302, redirectUri + '?' + querystring.stringify({
@@ -110,8 +110,8 @@
             return;
         }
 
-        // TODO: Display static page with login form and consent checkbox.
-        res.send('Hello World!');
+        // Display the authorization page view.
+        res.render('oauth2/authorization', { title: 'Hello, world!', appName: clientConfig.displayName });
     }
 
     module.exports = getAuthorization;

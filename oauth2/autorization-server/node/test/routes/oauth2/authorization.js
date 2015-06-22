@@ -22,6 +22,10 @@ describe('Routes', function() {
 
            app.use(i18n.init);
 
+           // Set up the view engine.
+           app.set('views',__dirname + '/../../../views');
+           app.set('view engine', 'hjs');
+
            app.use('/', routes);
 
            it('shall reject a missing client_id query parameter', function(done) {

@@ -2,6 +2,7 @@
   "clients": {
     "unitTestClient": {
       "clientId": "unitTestClient",
+      "displayName": "Ayoy OAuth2 Node.js Unit Test",
       "redirectUri": "https://localhost/oauth2/cb",
       "responseType": "code",
       "scopes": [ "profile", "email" ]
