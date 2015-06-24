@@ -7,19 +7,46 @@
     <title>{{ title }}</title>
 
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <!-- Our custom styles -->
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<h1>{{ title }}</h1>
-<hr>
-<p>{{ appName }} wants to log you in.</p>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+            <div class="well center-block">
+                <h1>{{#i18n}}application_name{{/i18n}}</h1>
+                <p class="lead">{{ appName }} {{#i18n}}label_wants_to_sign_you_in{{/i18n}}</p>
+                <hr>
+                <form class="form-signin">
+                    <h2 class="form-signin-heading">{{#i18n}}heading_please_sign_in{{/i18n}}</h2>
+                    <div class="form-group">
+                        <label for="inputEmail" class="sr-only">{{#i18n}}label_email_address{{/i18n}}</label>
+                        <input type="email" id="inputEmail" class="form-control" placeholder="{{#i18n}}label_email_address{{/i18n}}" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPassword" class="sr-only">{{#i18n}}label_password{{/i18n}}</label>
+                        <input type="password" id="inputPassword" class="form-control" placeholder="{{#i18n}}label_password{{/i18n}}" required>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-default btn-block" type="submit">{{#i18n}}button_cancel{{/i18n}}</button>
+                    </div>
+                    <div class="col-sm-6">
+                        <button class="btn btn-primary btn-block" type="submit">{{#i18n}}button_sign_in{{/i18n}}</button>
+                    </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- JQuery -->
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <!-- Bootstrap -->
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </body>
 </html>

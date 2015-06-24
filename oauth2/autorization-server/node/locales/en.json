@@ -1,4 +1,5 @@
 {
+  "application_name": "Ayoy Demo Authorization Server",
   "missing_client_id": "Missing or invalid client_id.",
   "invalid_client_id": "Missing or invalid client_id.",
   "missing_redirect_uri": "Missing redirect_uri.",
@@ -7,5 +8,13 @@
   "missing_response_type": "Missing response_type.",
   "invalid_response_type": "Invalid response_type.",
   "missing_scope": "Missing scope.",
-  "invalid_scope": "Invalid scope."
+  "invalid_scope": "Invalid scope.",
+  "button_cancel": "Cancel",
+  "button_sign_in": "Sign In",
+  "heading_please_sign_in": "Please Sign In",
+  "label_email_address": "Email address",
+  "label_password": "Password",
+  "label_wants_to_sign_you_in": "wants to sign you in.",
+  "scope_email": "Your E-mail Address",
+  "scope_profile": "Your User Profile"
 }

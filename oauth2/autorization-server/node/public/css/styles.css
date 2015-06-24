@@ -1,0 +1,31 @@
+/* Apply a gradient to whole the page. */
+html {
+    height: 100%;
+}
+body {
+    height: 100%;
+    margin: 0;
+    background: linear-gradient(#eee, #ddd) no-repeat fixed;
+}
+
+/* Apply a gradient to the well and give it a top margin. */
+.well {
+    margin-top: 20px;
+    background: linear-gradient(#fff, #eee) no-repeat;
+}
+
+/* Apply an inverse gradient to input fields. */
+input[type="text"], input[type="email"], input[type="password"] {
+    background: linear-gradient(#f8f8f8, #fff) no-repeat;
+}
+
+/* Apply a gradient to buttons. */
+button.btn-default {
+    background: linear-gradient(#fff, #eee) no-repeat;
+}
+button.btn-primary {
+    background: linear-gradient(#337ab7, #236aa7) no-repeat;
+}
+button.btn-primary:hover {
+    background: linear-gradient(#286090, #185080) no-repeat;
+}

@@ -43,7 +43,7 @@
         }
 
         // Make sure a valid redirect_uri was sent.
-        if (redirectUri !=  clientConfig.redirectUri) {
+        if (redirectUri !=  clientConfig['redirectUri']) {
             // Inform the resource owner of the invalid redirect_uri.
             res.status(400).send(res.__('invalid_redirect_uri'));
             return;
@@ -97,7 +97,7 @@
         requestedScopes = scope.split(' ');
 
         // Match the scopes against the configured ones.
-        matchedScopes = _.intersection(requestedScopes, clientConfig.scopes);
+        matchedScopes = _.intersection(requestedScopes, clientConfig['scopes']);
 
         // Make sure at least one configured scope was matched.
         if (_.isEmpty(matchedScopes)) {
@@ -111,7 +111,10 @@
         }
 
         // Display the authorization page view.
-        res.render('oauth2/authorization', { title: 'Hello, world!', appName: clientConfig.displayName });
+        res.render('oauth2/authorization', {
+            appName: clientConfig['displayName'],
+            i18n: function() { return function(key) { return res.__(key); } }
+        });
     }
 
     module.exports = getAuthorization;
