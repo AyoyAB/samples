@@ -1,4 +1,17 @@
 {
   "hostname": "localhost",
-  "port": 3001
+  "port": 3001,
+  "clients": {
+      "Test Client": {
+        "clientId": "Test Client",
+        "displayName": "Ayoy OAuth2 Node.js Sample",
+        "redirectUri": "http://localhost:3000/oauth2/cb",
+        "responseType": "code",
+        "scopes": [ "profile", "email" ]
+      }
+    },
+    "scopes": {
+      "profile": "scope_profile",
+      "email": "scope_email"
+    }
 }

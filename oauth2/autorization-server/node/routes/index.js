@@ -5,19 +5,15 @@
         auth            = require('basic-auth'),
 
         authorization   = require('./oauth2/authorization'),
+        authResponse    = require('./oauth2/authorizationResponse'),
 
         router          = express.Router();
 
     // The authorization endpoint.
     router.get('/oauth2/authorization', authorization);
 
-    // The authorization login endpoint.
-    router.get('/oauth2/authorization-result', function(req, res) {
-        // TODO: If we pass the parameters here via hidden fields we want to check them again.
-        // TODO: Pass them signed/HMAC:ed?
-        // TODO: Check login result and redirect to either the redirect URI along with the generated code and the supplied state; ...
-        res.send('Hello World!');
-    });
+    // The authorization response endpoint.
+    router.post('/oauth2/authorization-response', authResponse);
 
     // The token endpoint.
     router.get('/oauth2/token', function(req, res) {

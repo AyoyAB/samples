@@ -13,9 +13,11 @@
             scope           = req.query.scope,
             state           = req.query.state,
             config          = nconf.get('clients'),
+            allScopes       = nconf.get('scopes'),
             clientConfig,
             requestedScopes,
-            matchedScopes;
+            matchedScopes,
+            translatedScopes;
 
         // Make sure a client_id was sent.
         if (!clientId) {
@@ -110,9 +112,24 @@
             return;
         }
 
+        // Look up the display names for the matched scopes.
+        translatedScopes = _.map(matchedScopes, function(val) {
+            if (_.has(allScopes, val)) {
+                // Use the display name.
+                return res.__(allScopes[val]);
+            } else {
+                // No display name found.
+                return val;
+            }
+        });
+
+        // TODO: Create the HMAC:ed, serialized parameter string.
+
         // Display the authorization page view.
         res.render('oauth2/authorization', {
             appName: clientConfig['displayName'],
+            scopes: translatedScopes,
+            // TODO: Add the HMAC:ed, serialized parameter string.
             i18n: function() { return function(key) { return res.__(key); } }
         });
     }

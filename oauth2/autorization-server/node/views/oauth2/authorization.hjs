@@ -20,8 +20,15 @@
             <div class="well center-block">
                 <h1>{{#i18n}}application_name{{/i18n}}</h1>
                 <p class="lead">{{ appName }} {{#i18n}}label_wants_to_sign_you_in{{/i18n}}</p>
+                <p>{{#i18n}}label_requested_scopes{{/i18n}}</p>
+                <ul>
+                {{#scopes}}
+                    <li>{{.}}</li>
+                {{/scopes}}
+                </ul>
                 <hr>
-                <form class="form-signin">
+                <form class="form-signin" action="/oauth2/authorization-response" method="post">
+                    <!-- TODO: Add hidden field for parameter serialization. -->
                     <h2 class="form-signin-heading">{{#i18n}}heading_please_sign_in{{/i18n}}</h2>
                     <div class="form-group">
                         <label for="inputEmail" class="sr-only">{{#i18n}}label_email_address{{/i18n}}</label>
@@ -33,10 +40,10 @@
                     </div>
                     <div class="row">
                     <div class="col-sm-6">
-                        <button class="btn btn-default btn-block" type="submit">{{#i18n}}button_cancel{{/i18n}}</button>
+                        <button class="btn btn-default btn-block" type="submit" value="cancel">{{#i18n}}button_cancel{{/i18n}}</button>
                     </div>
                     <div class="col-sm-6">
-                        <button class="btn btn-primary btn-block" type="submit">{{#i18n}}button_sign_in{{/i18n}}</button>
+                        <button class="btn btn-primary btn-block" type="submit" value="submit">{{#i18n}}button_sign_in{{/i18n}}</button>
                     </div>
                     </div>
                 </form>

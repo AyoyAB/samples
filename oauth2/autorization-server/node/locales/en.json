@@ -15,6 +15,7 @@
   "label_email_address": "Email address",
   "label_password": "Password",
   "label_wants_to_sign_you_in": "wants to sign you in.",
-  "scope_email": "Your E-mail Address",
-  "scope_profile": "Your User Profile"
+  "label_requested_scopes": "The application has requested the following permissions:",
+  "scope_email": "Your e-mail address",
+  "scope_profile": "Your user profile"
 }

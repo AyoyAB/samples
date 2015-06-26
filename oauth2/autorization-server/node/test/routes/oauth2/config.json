@@ -7,5 +7,9 @@
       "responseType": "code",
       "scopes": [ "profile", "email" ]
     }
+  },
+  "scopes": {
+    "profile": "scope_profile",
+    "email": "scope_email"
   }
 }
